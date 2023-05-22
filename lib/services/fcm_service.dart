@@ -1,5 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:todo/services/notification_service.dart';
 import 'shared_pref_service.dart';
 
 class FirebaseMessagingService {
@@ -11,14 +12,17 @@ class FirebaseMessagingService {
 
   FirebaseMessagingService._();
 
+  final _notificationService = LocalNotificationService();
+
   Future<void> initialize() async {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       debugPrint('Received a new message!');
-      // Handle the received message
+      _notificationService.showNotification(message);
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       debugPrint('User tapped on the notification!');
+      debugPrint('${message.toMap()}');
       // Handle the notification tap
     });
 

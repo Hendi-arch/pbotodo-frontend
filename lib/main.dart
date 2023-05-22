@@ -10,6 +10,7 @@ import 'package:todo/screens/startup_screen.dart';
 import 'package:todo/models/tasks_data.dart';
 import 'package:todo/services/fa_service.dart';
 import 'package:todo/services/fcm_service.dart';
+import 'package:todo/services/notification_service.dart';
 import 'package:todo/themes/app_themes.dart';
 
 @pragma('vm:entry-point')
@@ -32,6 +33,10 @@ void main() async {
   // Initialize Firebase Messaging service
   FirebaseMessagingService messagingService = FirebaseMessagingService();
   await messagingService.initialize();
+
+  // Initialize Local Notification service
+  LocalNotificationService localNotificationService = LocalNotificationService();
+  await localNotificationService.initializeLocalNotification();
 
   // Pass all uncaught "fatal" errors from the framework to Crashlytics
   FlutterError.onError = (errorDetails) {
