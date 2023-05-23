@@ -1,6 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-import 'package:todo/services/notification_service.dart';
+import 'package:todo/services/local_notification_service.dart';
 import 'shared_pref_service.dart';
 
 class FirebaseMessagingService {
@@ -33,17 +33,17 @@ class FirebaseMessagingService {
       debugPrint('Failed to request Firebase Messaging permission: $e');
     }
 
-    String? token = await _firebaseMessaging.getToken();
-    if (token != null) {
-      await saveTokenToSharedPref(token);
-    }
+    await saveTokenToSharedPref();
   }
 
-  Future<void> saveTokenToSharedPref(String token) async {
+  Future<void> saveTokenToSharedPref() async {
     try {
-      await SharedPrefService().setDeviceId(token);
-      debugPrint('Firebase Messaging token $token');
-      debugPrint('Firebase Messaging token saved to shared preferences.');
+      String? token = await _firebaseMessaging.getToken();
+      if (token != null) {
+        await SharedPrefService().setDeviceId(token);
+        debugPrint('Firebase Messaging token $token');
+        debugPrint('Firebase Messaging token saved to shared preferences.');
+      }
     } catch (e) {
       debugPrint(
           'Failed to save Firebase Messaging token to shared preferences: $e');

@@ -10,7 +10,7 @@ import 'package:todo/screens/startup_screen.dart';
 import 'package:todo/models/tasks_data.dart';
 import 'package:todo/services/fa_service.dart';
 import 'package:todo/services/fcm_service.dart';
-import 'package:todo/services/notification_service.dart';
+import 'package:todo/services/local_notification_service.dart';
 import 'package:todo/themes/app_themes.dart';
 
 @pragma('vm:entry-point')

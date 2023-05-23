@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:todo/screens/home_screen.dart';
 import 'package:todo/Services/database_service.dart';
 import 'package:todo/services/fa_service.dart';
+import 'package:todo/services/fcm_service.dart';
 import 'package:todo/shared/functions.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -15,6 +16,7 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   final _faService = FirebaseAnalyticsService();
+  final _fcmService = FirebaseMessagingService();
 
   bool _isSigningIn = true;
   bool _isFetchingData = false;
@@ -45,10 +47,12 @@ class _AuthScreenState extends State<AuthScreen> {
     try {
       if (_isSigningIn) {
         await _faService.logLogin();
+        await _fcmService.saveTokenToSharedPref();
         await DatabaseService()
             .signin(_usernameController.text, _passwordController.text);
       } else {
         await _faService.logSignUp();
+        await _fcmService.saveTokenToSharedPref();
         await DatabaseService()
             .signup(_usernameController.text, _passwordController.text);
       }
