@@ -24,6 +24,6 @@ bool containsDigitAndSymbol(String value) {
   return RegExp(r'^(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])').hasMatch(value);
 }
 
-String formatDate(DateTime timestamp, [String format = 'MMM d, y h:mm:ss a']) {
-  return DateFormat(format).format(timestamp.toLocal());
+String formatDate(DateTime timestamp, [String format = 'd MMM, y hh:mm:ss a']) {
+  return DateFormat(format).format(timestamp);
 }

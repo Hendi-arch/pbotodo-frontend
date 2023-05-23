@@ -41,7 +41,7 @@ class Task {
       'title': title,
       'done': done,
       'username': username,
-      'dueDate': dueDate.toUtc().toIso8601String(),
+      'dueDate': dueDate.toIso8601String(),
       'notificationChannelId': notificationChannelId,
       'urgency': urgency
     };
@@ -53,10 +53,10 @@ class Task {
       'title': title,
       'done': done,
       'username': username,
-      'dueDate': dueDate.toUtc().toIso8601String(),
+      'dueDate': dueDate.toIso8601String(),
       'notificationChannelId': notificationChannelId,
       'urgency': urgency,
-      'createdAt': createdAt?.toUtc().toIso8601String()
+      'createdAt': createdAt?.toIso8601String()
     };
   }
 }

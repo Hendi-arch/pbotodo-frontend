@@ -93,6 +93,17 @@ class LocalNotificationService {
 
   // initialization service
   Future initializeLocalNotification() async {
+    try {
+      bool? result = await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.requestPermission();
+
+      debugPrint('Local Notification permission status: $result');
+    } catch (e) {
+      debugPrint('Failed to request Local Notification permission: $e');
+    }
+
     await flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()

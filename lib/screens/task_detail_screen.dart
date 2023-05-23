@@ -2,10 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart';
 import 'package:todo/models/task.dart';
 import 'package:todo/models/tasks_data.dart';
 import 'package:provider/provider.dart';
+import 'package:todo/shared/functions.dart';
 
 class TaskDetailScreen extends StatefulWidget {
   final Task? taskData;
@@ -21,7 +21,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   final TextEditingController _todoTitleController = TextEditingController();
   DateTime _dueDate = DateTime.now();
   String _reminder = 'at_time_notification_channel_id';
-  String _urgency = 'not_important';
+  String _urgency = 'not_important_notification_channel_id';
   bool _isFetchingData = false;
 
   void _submitForm() async {
@@ -77,7 +77,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   void _initForm() {
     if (widget.taskData != null) {
       _todoTitleController.text = widget.taskData!.title;
-      _dueDate = widget.taskData!.dueDate.toLocal();
+      _dueDate = widget.taskData!.dueDate;
       _reminder = widget.taskData!.notificationChannelId;
       _urgency = widget.taskData!.urgency;
     }
@@ -128,9 +128,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 ),
                 child: ListTile(
                   title: const Text('Due date'),
-                  subtitle: Text(
-                    DateFormat('MMM d, y').format(_dueDate),
-                  ),
+                  subtitle: Text(formatDate(_dueDate, 'd MMM, y')),
                   onTap: () async {
                     final DateTime? selectedDate = await showDatePicker(
                       context: context,
@@ -164,9 +162,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 ),
                 child: ListTile(
                   title: const Text('Due date time'),
-                  subtitle: Text(
-                    DateFormat('h:mm:ss a').format(_dueDate),
-                  ),
+                  subtitle: Text(formatDate(_dueDate, 'hh:mm:ss a')),
                   onTap: () async {
                     final TimeOfDay? selectedTime = await showTimePicker(
                       context: context,
@@ -247,11 +243,11 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 value: _urgency,
                 items: const [
                   DropdownMenuItem(
-                    value: 'not_important',
+                    value: 'not_important_notification_channel_id',
                     child: Text('Not Important'),
                   ),
                   DropdownMenuItem(
-                    value: 'important',
+                    value: 'important_notification_channel_id',
                     child: Text('Important'),
                   ),
                 ],

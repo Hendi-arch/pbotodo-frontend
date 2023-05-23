@@ -28,10 +28,13 @@ class DatabaseService {
   }
 
   Future<void> signin(String username, String password) async {
+    final deviceId = await SharedPrefService().getDeviceId();
     final data = {
       "password": password,
       "username": username,
+      "deviceId": deviceId,
     };
+    debugPrint(data.toString());
     final body = json.encode(data);
     final url = Uri.parse('$baseURL/auth/signin');
 
@@ -40,16 +43,17 @@ class DatabaseService {
       headers: {"Content-Type": "application/json"},
       body: body,
     );
-    debugPrint(response.body);
     final responseMap = jsonDecode(response.body);
     await SharedPrefService()
         .saveCredentials(responseMap["user"], responseMap["token"]);
   }
 
   Future<void> signup(String username, String password) async {
+    final deviceId = await SharedPrefService().getDeviceId();
     final data = {
       "password": password,
       "username": username,
+      "deviceId": deviceId,
     };
     final body = json.encode(data);
     final url = Uri.parse('$baseURL/auth/signup');
