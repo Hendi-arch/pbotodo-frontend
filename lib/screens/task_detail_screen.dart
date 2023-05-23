@@ -31,6 +31,12 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
     setState(() => _isFetchingData = true);
     try {
+      if (_dueDate.isBefore(DateTime.now())) {
+        FocusScope.of(context).unfocus();
+        setState(() => _isFetchingData = false);
+        _showSnackBar("Due date must be a date in the future.");
+        return;
+      }
       if (widget.taskData == null) {
         await context.read<TasksData>().addTask(
               Task(
