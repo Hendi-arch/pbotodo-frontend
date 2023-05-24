@@ -148,7 +148,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                           day: selectedDate.day,
                           month: selectedDate.month,
                           year: selectedDate.year,
-                          second: _dueDate.second,
+                          second: 0,
                           minute: _dueDate.minute,
                           hour: _dueDate.hour,
                         );
@@ -180,7 +180,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                           day: _dueDate.day,
                           month: _dueDate.month,
                           year: _dueDate.year,
-                          second: DateTime.now().second,
+                          second: 0,
                           minute: selectedTime.minute,
                           hour: selectedTime.hour,
                         );
