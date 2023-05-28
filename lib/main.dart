@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'package:todo/firebase_options.dart';
 import 'package:todo/screens/startup_screen.dart';
 import 'package:todo/models/tasks_data.dart';
@@ -35,7 +36,8 @@ void main() async {
   await messagingService.initialize();
 
   // Initialize Local Notification service
-  LocalNotificationService localNotificationService = LocalNotificationService();
+  LocalNotificationService localNotificationService =
+      LocalNotificationService();
   await localNotificationService.initializeLocalNotification();
 
   // Pass all uncaught "fatal" errors from the framework to Crashlytics
@@ -76,7 +78,9 @@ class MyApp extends StatelessWidget {
                 /// Setting font does not change with system font size
                 data: MediaQuery.of(context).copyWith(
                     textScaleFactor: mqd.textScaleFactor >= 1.15 ? 1.15 : 1.0),
-                child: child!,
+                child: ShowCaseWidget(
+                  builder: Builder(builder: (context) => child!),
+                ),
               );
             },
             home: snapshot,

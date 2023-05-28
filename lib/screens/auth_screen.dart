@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:showcaseview/showcaseview.dart';
+import 'package:todo/Services/shared_pref_service.dart';
 import 'package:todo/screens/home_screen.dart';
 import 'package:todo/Services/database_service.dart';
 import 'package:todo/services/fa_service.dart';
@@ -17,6 +19,7 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   final _faService = FirebaseAnalyticsService();
   final _fcmService = FirebaseMessagingService();
+  final _sharedPrefService = SharedPrefService();
 
   bool _isSigningIn = true;
   bool _isFetchingData = false;
@@ -25,11 +28,36 @@ class _AuthScreenState extends State<AuthScreen> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+  final _showCaseAuthButton = GlobalKey();
+  final _showCaseAccountButton = GlobalKey();
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _onInit());
+    super.initState();
+  }
+
   @override
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  void _onInit() {
+    _checkShowCase();
+  }
+
+  void _checkShowCase() async {
+    bool test1 = await _sharedPrefService.getShowCaseAuthButtonKey();
+    bool test2 = await _sharedPrefService.getShowCaseAccountButtonKey();
+    if (!test1 && !test2) {
+      // ignore: use_build_context_synchronously
+      ShowCaseWidget.of(context)
+          .startShowCase([_showCaseAuthButton, _showCaseAccountButton]);
+    }
+    _sharedPrefService.setShowCaseAuthButtonKey(true);
+    _sharedPrefService.setShowCaseAccountButtonKey(true);
   }
 
   void _toggleSignInSignUpState() {
@@ -152,28 +180,40 @@ class _AuthScreenState extends State<AuthScreen> {
                 },
               ),
               SizedBox(height: 16.0.h),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 350),
-                transitionBuilder: (child, animation) {
-                  return ScaleTransition(
-                    scale: animation,
-                    alignment: Alignment.center,
-                    filterQuality: FilterQuality.high,
-                    child: child,
-                  );
-                },
-                child: _isFetchingData
-                    ? const CircularProgressIndicator()
-                    : ElevatedButton(
-                        onPressed: _handleAuth,
-                        child: Text(_isSigningIn ? 'Sign In' : 'Sign Up'),
-                      ),
+              Showcase(
+                key: _showCaseAuthButton,
+                title: 'Sign In/Sign Up',
+                description: 'Tap this button to sign in or sign up',
+                targetPadding: const EdgeInsets.all(4).w,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 350),
+                  transitionBuilder: (child, animation) {
+                    return ScaleTransition(
+                      scale: animation,
+                      alignment: Alignment.center,
+                      filterQuality: FilterQuality.high,
+                      child: child,
+                    );
+                  },
+                  child: _isFetchingData
+                      ? const CircularProgressIndicator()
+                      : ElevatedButton(
+                          onPressed: _handleAuth,
+                          child: Text(_isSigningIn ? 'Sign In' : 'Sign Up'),
+                        ),
+                ),
               ),
-              TextButton(
-                onPressed: _toggleSignInSignUpState,
-                child: Text(_isSigningIn
-                    ? 'Need an account? Sign up'
-                    : 'Already have an account? Sign in'),
+              Showcase(
+                key: _showCaseAccountButton,
+                title: 'Account Toggle',
+                description: 'Tap here to manage your account',
+                targetPadding: const EdgeInsets.all(4).w,
+                child: TextButton(
+                  onPressed: _toggleSignInSignUpState,
+                  child: Text(_isSigningIn
+                      ? 'Need an account? Sign up'
+                      : 'Already have an account? Sign in'),
+                ),
               ),
             ],
           ),

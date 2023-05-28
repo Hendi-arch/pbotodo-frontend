@@ -2,10 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'package:todo/Services/database_service.dart';
 import 'package:todo/models/task.dart';
 import 'package:todo/models/tasks_data.dart';
 import 'package:todo/screens/task_detail_screen.dart';
+import 'package:todo/services/shared_pref_service.dart';
 
 import '../task_tile.dart';
 
@@ -17,65 +19,98 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<Task>? tasks;
+  final _sharedPrefService = SharedPrefService();
 
-  void getTasks(TasksData tasksData) async {
+  List<Task>? tasks;
+  final _showCaseAddTaskButton = GlobalKey();
+  final _showCaseLogoutButton = GlobalKey();
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _onInit());
+    super.initState();
+  }
+
+  void _onInit() async {
+    await _getTasks(context.read<TasksData>());
+    if (tasks != null) {
+      _checkShowCase();
+    }
+  }
+
+  void _checkShowCase() async {
+    bool test1 = await _sharedPrefService.getShowCaseAddTaskButtonKey();
+    bool test2 = await _sharedPrefService.getShowCasLogoutButtonKey();
+    if (!test1 && !test2) {
+      // ignore: use_build_context_synchronously
+      ShowCaseWidget.of(context)
+          .startShowCase([_showCaseLogoutButton, _showCaseAddTaskButton]);
+    }
+    _sharedPrefService.setShowCaseAddTaskButtonKey(true);
+    _sharedPrefService.setShowCaseLogoutButtonKey(true);
+  }
+
+  Future<void> _getTasks(TasksData tasksData) async {
     tasks = await DatabaseService().getTasks();
     tasksData.tasks = tasks!;
     setState(() {});
   }
 
   @override
-  void initState() {
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => getTasks(context.read<TasksData>()));
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return tasks == null
-        ? const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Todo Tasks (${Provider.of<TasksData>(context).tasks.length})',
+        ),
+        centerTitle: true,
+        actions: [
+          Showcase(
+            key: _showCaseLogoutButton,
+            title: 'Logout',
+            description: 'Tap here to logout from your account',
+            child: IconButton(
+              onPressed: () => context.read<TasksData>().logout(context),
+              icon: const Icon(Icons.logout),
             ),
           )
-        : Scaffold(
-            appBar: AppBar(
-              title: Text(
-                'Todo Tasks (${Provider.of<TasksData>(context).tasks.length})',
-              ),
-              centerTitle: true,
-              actions: [
-                IconButton(
-                  onPressed: () => context.read<TasksData>().logout(context),
-                  icon: const Icon(Icons.logout),
-                )
-              ],
-            ),
-            body: Container(
+        ],
+      ),
+      body: tasks == null
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : Container(
               padding:
                   const EdgeInsets.symmetric(horizontal: 20, vertical: 10).r,
               child: Consumer<TasksData>(
                 builder: (context, tasksData, child) {
                   return ListView.builder(
-                      itemCount: tasksData.tasks.length,
-                      itemBuilder: (context, index) {
-                        Task task = tasksData.tasks[index];
-                        return TaskTile(
-                          task: task,
-                          tasksData: tasksData,
-                        );
-                      });
+                    itemCount: tasksData.tasks.length,
+                    itemBuilder: (context, index) {
+                      Task task = tasksData.tasks[index];
+                      return TaskTile(
+                        task: task,
+                        tasksData: tasksData,
+                      );
+                    },
+                  );
                 },
               ),
             ),
-            floatingActionButton: FloatingActionButton(
-              child: const Icon(Icons.add),
-              onPressed: () => Navigator.of(context).push(CupertinoPageRoute(
-                builder: (context) => const TaskDetailScreen(),
-              )),
-            ),
-          );
+      floatingActionButton: Showcase(
+        key: _showCaseAddTaskButton,
+        title: 'Add Task',
+        description: 'Tap here to add your task',
+        targetPadding: const EdgeInsets.all(4).w,
+        targetShapeBorder: const CircleBorder(),
+        child: FloatingActionButton(
+          child: const Icon(Icons.add),
+          onPressed: () => Navigator.of(context).push(CupertinoPageRoute(
+            builder: (context) => const TaskDetailScreen(),
+          )),
+        ),
+      ),
+    );
   }
 }

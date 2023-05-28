@@ -5,6 +5,10 @@ class SharedPrefService {
   static const String _usernameKey = 'username';
   static const String _tokenKey = 'token';
   static const String _deviceIdKey = 'deviceId';
+  static const String _showCaseAuthButtonKey = 'showCaseAuthButtonKey';
+  static const String _showCaseAccountButtonKey = 'showCaseAccountButtonKey';
+  static const String _showCaseAddTaskButtonKey = 'showCaseAddTaskButtonKey';
+  static const String _showCaseLogoutButtonKey = 'showCaseLogoutButtonKey';
   SharedPreferences? _prefs;
 
   factory SharedPrefService() => _instance;
@@ -39,14 +43,54 @@ class SharedPrefService {
     return prefs.getString(_tokenKey);
   }
 
-  Future<bool> setDeviceId(String deviceId) async {
-    final prefs = await this.prefs;
-    return prefs.setString(_deviceIdKey, deviceId);
-  }
-
   Future<String?> getDeviceId() async {
     final prefs = await this.prefs;
     return prefs.getString(_deviceIdKey);
+  }
+
+  Future<bool> getShowCaseAuthButtonKey() async {
+    final prefs = await this.prefs;
+    return prefs.getBool(_showCaseAuthButtonKey) ?? false;
+  }
+
+  Future<bool> getShowCaseAccountButtonKey() async {
+    final prefs = await this.prefs;
+    return prefs.getBool(_showCaseAccountButtonKey) ?? false;
+  }
+
+  Future<bool> getShowCaseAddTaskButtonKey() async {
+    final prefs = await this.prefs;
+    return prefs.getBool(_showCaseAddTaskButtonKey) ?? false;
+  }
+
+  Future<bool> getShowCasLogoutButtonKey() async {
+    final prefs = await this.prefs;
+    return prefs.getBool(_showCaseLogoutButtonKey) ?? false;
+  }
+
+  Future<bool?> setShowCaseAuthButtonKey(bool value) async {
+    final prefs = await this.prefs;
+    return prefs.setBool(_showCaseAuthButtonKey, value);
+  }
+
+  Future<bool?> setShowCaseAccountButtonKey(bool value) async {
+    final prefs = await this.prefs;
+    return prefs.setBool(_showCaseAccountButtonKey, value);
+  }
+
+  Future<bool?> setShowCaseAddTaskButtonKey(bool value) async {
+    final prefs = await this.prefs;
+    return prefs.setBool(_showCaseAddTaskButtonKey, value);
+  }
+
+  Future<bool?> setShowCaseLogoutButtonKey(bool value) async {
+    final prefs = await this.prefs;
+    return prefs.setBool(_showCaseLogoutButtonKey, value);
+  }
+
+  Future<bool> setDeviceId(String deviceId) async {
+    final prefs = await this.prefs;
+    return prefs.setString(_deviceIdKey, deviceId);
   }
 
   Future<bool> isHaveCredentials() async {
