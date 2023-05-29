@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -90,13 +92,23 @@ class _AuthScreenState extends State<AuthScreen> {
       // ignore: use_build_context_synchronously
       Navigator.of(context).pushReplacement(
           CupertinoPageRoute(builder: (context) => const HomeScreen()));
+    } on HttpException catch (e) {
+      debugPrint(e.toString());
+      Future.delayed(Duration.zero, () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      });
     } catch (e) {
       debugPrint(e.toString());
       Future.delayed(Duration.zero, () {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Oops, An error occurred, please try again'),
-            duration: Duration(seconds: 3),
+          SnackBar(
+            content: Text(e.toString()),
+            duration: const Duration(seconds: 3),
           ),
         );
       });
@@ -127,17 +139,16 @@ class _AuthScreenState extends State<AuthScreen> {
                   if (value?.isEmpty ?? true) {
                     return 'Please enter your username';
                   }
-                  if (!hasMinimumLength(value ?? '', 4)) {
-                    return 'Username must have at least 4 characters';
-                  }
-                  if (hasMaximumLength(value ?? '', 15)) {
-                    return 'Username must not exceed 15 characters';
-                  }
-                  if (!doesNotContainUppercase(value ?? '')) {
-                    return 'Username cannot contain uppercase letters';
-                  }
-                  if (!containsOnlyValidCharacters(value ?? '')) {
-                    return 'Username can only contain symbol underscores';
+                  if (!_isSigningIn) {
+                    if (!hasMinimumLength(value ?? '', 4)) {
+                      return 'Username must have at least 4 characters';
+                    }
+                    if (hasMaximumLength(value ?? '', 255)) {
+                      return 'Username must not exceed 255 characters';
+                    }
+                    if (!containsOnlyValidCharacters(value ?? '')) {
+                      return 'Username can only contain symbol underscores';
+                    }
                   }
                   return null;
                 },
@@ -161,20 +172,22 @@ class _AuthScreenState extends State<AuthScreen> {
                   if (value?.isEmpty ?? true) {
                     return 'Please enter your password';
                   }
-                  if (!hasMinimumLength(value ?? '', 8)) {
-                    return 'Password must have at least 8 characters';
-                  }
-                  if (hasMaximumLength(value ?? '', 200)) {
-                    return 'Password must not exceed 200 characters';
-                  }
-                  if (doesNotContainUppercase(value ?? '')) {
-                    return 'Password must contain at least one uppercase letters';
-                  }
-                  if (!containLowercase(value ?? '')) {
-                    return 'Password must contain at least one lowercase letters';
-                  }
-                  if (!containsDigitAndSymbol(value ?? '')) {
-                    return 'Password must contain at least one digit and one symbol';
+                  if (!_isSigningIn) {
+                    if (!hasMinimumLength(value ?? '', 6)) {
+                      return 'Password must have at least 6 characters';
+                    }
+                    if (hasMaximumLength(value ?? '', 255)) {
+                      return 'Password must not exceed 255 characters';
+                    }
+                    if (doesNotContainUppercase(value ?? '')) {
+                      return 'Password must contain at least one uppercase letters';
+                    }
+                    if (!containLowercase(value ?? '')) {
+                      return 'Password must contain at least one lowercase letters';
+                    }
+                    if (!containsDigitAndSymbol(value ?? '')) {
+                      return 'Password must contain at least one digit and one symbol';
+                    }
                   }
                   return null;
                 },

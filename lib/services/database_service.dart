@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:todo/services/shared_pref_service.dart';
@@ -24,7 +25,6 @@ class DatabaseService {
       },
     );
     debugPrint(response.body);
-    await SharedPrefService().removeCredentials();
   }
 
   Future<void> signin(String username, String password) async {
@@ -44,8 +44,13 @@ class DatabaseService {
       body: body,
     );
     final responseMap = jsonDecode(response.body);
-    await SharedPrefService()
-        .saveCredentials(responseMap["user"], responseMap["token"]);
+    if (response.statusCode <= 399) {
+      await SharedPrefService()
+          .saveCredentials(responseMap["user"], responseMap["token"]);
+    } else {
+      throw HttpException(responseMap['message'] ??
+          'Oops, An error occurred, please try again');
+    }
   }
 
   Future<void> signup(String username, String password) async {
@@ -63,10 +68,14 @@ class DatabaseService {
       headers: {"Content-Type": "application/json"},
       body: body,
     );
-    debugPrint(response.body);
     final responseMap = jsonDecode(response.body);
-    await SharedPrefService()
-        .saveCredentials(responseMap["user"], responseMap["token"]);
+    if (response.statusCode <= 399) {
+      await SharedPrefService()
+          .saveCredentials(responseMap["user"], responseMap["token"]);
+    } else {
+      throw HttpException(responseMap['message'] ??
+          'Oops, An error occurred, please try again');
+    }
   }
 
   Future<Task> addTask(Task task) async {
@@ -86,9 +95,12 @@ class DatabaseService {
     );
     debugPrint(response.body);
     final responseMap = jsonDecode(response.body);
-    final responseTask = Task.fromMap(responseMap);
-
-    return responseTask;
+    if (response.statusCode <= 399) {
+      return Task.fromMap(responseMap);
+    } else {
+      throw HttpException(responseMap['message'] ??
+          'Oops, An error occurred, please try again');
+    }
   }
 
   Future<Task> updateTask(Task task) async {
@@ -108,9 +120,12 @@ class DatabaseService {
     );
     debugPrint(response.body);
     final responseMap = jsonDecode(response.body);
-    final responseTask = Task.fromMap(responseMap);
-
-    return responseTask;
+    if (response.statusCode <= 399) {
+      return Task.fromMap(responseMap);
+    } else {
+      throw HttpException(responseMap['message'] ??
+          'Oops, An error occurred, please try again');
+    }
   }
 
   Future<List<Task>> getTasks() async {
@@ -156,6 +171,28 @@ class DatabaseService {
         "Content-Type": "application/json",
         "Authorization": "Bearer $token",
       },
+    );
+    debugPrint(response.body);
+    return response;
+  }
+
+  Future<http.Response> addFeedback(String feedback) async {
+    final username = await SharedPrefService().getUsername();
+    final token = await SharedPrefService().getToken();
+    final data = {
+      "userId": username,
+      "feedbackText": feedback,
+    };
+
+    final body = json.encode(data);
+    final url = Uri.parse('$baseURL/feedback/$username');
+    final response = await http.post(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+      body: body,
     );
     debugPrint(response.body);
     return response;
