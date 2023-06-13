@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:todo/Services/shared_pref_service.dart';
+import 'package:todo/screens/forgot_password_screen.dart';
 import 'package:todo/screens/home_screen.dart';
 import 'package:todo/Services/database_service.dart';
 import 'package:todo/services/fa_service.dart';
@@ -32,6 +33,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   final _showCaseAuthButton = GlobalKey();
   final _showCaseAccountButton = GlobalKey();
+  final _showCaseForgotPasswordButton = GlobalKey();
 
   @override
   void initState() {
@@ -53,13 +55,18 @@ class _AuthScreenState extends State<AuthScreen> {
   void _checkShowCase() async {
     bool test1 = await _sharedPrefService.getShowCaseAuthButtonKey();
     bool test2 = await _sharedPrefService.getShowCaseAccountButtonKey();
-    if (!test1 && !test2) {
+    bool test3 = await _sharedPrefService.getShowCaseForgotPasswordButtonKey();
+    if (!test1 && !test2 && !test3) {
       // ignore: use_build_context_synchronously
-      ShowCaseWidget.of(context)
-          .startShowCase([_showCaseAuthButton, _showCaseAccountButton]);
+      ShowCaseWidget.of(context).startShowCase([
+        _showCaseAuthButton,
+        _showCaseAccountButton,
+        _showCaseForgotPasswordButton
+      ]);
     }
     _sharedPrefService.setShowCaseAuthButtonKey(true);
     _sharedPrefService.setShowCaseAccountButtonKey(true);
+    _sharedPrefService.setShowCaseForgotPasswordButtonKey(true);
   }
 
   void _toggleSignInSignUpState() {
@@ -226,6 +233,18 @@ class _AuthScreenState extends State<AuthScreen> {
                   child: Text(_isSigningIn
                       ? 'Need an account? Sign up'
                       : 'Already have an account? Sign in'),
+                ),
+              ),
+              Showcase(
+                key: _showCaseForgotPasswordButton,
+                title: 'Reset Password',
+                description: 'Tap here to reset your password',
+                targetPadding: const EdgeInsets.all(4).w,
+                child: TextButton(
+                  onPressed: () => Navigator.of(context).push(
+                      CupertinoPageRoute(
+                          builder: (context) => const ForgotPasswordScreen())),
+                  child: const Text('Reset Password'),
                 ),
               ),
             ],

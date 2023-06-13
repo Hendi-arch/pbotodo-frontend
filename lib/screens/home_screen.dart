@@ -6,6 +6,7 @@ import 'package:showcaseview/showcaseview.dart';
 import 'package:todo/Services/database_service.dart';
 import 'package:todo/models/task.dart';
 import 'package:todo/models/tasks_data.dart';
+import 'package:todo/screens/feedback_screen.dart';
 import 'package:todo/screens/task_detail_screen.dart';
 import 'package:todo/services/shared_pref_service.dart';
 
@@ -24,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Task>? tasks;
   final _showCaseAddTaskButton = GlobalKey();
   final _showCaseLogoutButton = GlobalKey();
+  final _showCaseFeedbackButton = GlobalKey();
 
   @override
   void initState() {
@@ -41,13 +43,18 @@ class _HomeScreenState extends State<HomeScreen> {
   void _checkShowCase() async {
     bool test1 = await _sharedPrefService.getShowCaseAddTaskButtonKey();
     bool test2 = await _sharedPrefService.getShowCasLogoutButtonKey();
-    if (!test1 && !test2) {
+    bool test3 = await _sharedPrefService.getShowCasFeedbackButtonKey();
+    if (!test1 && !test2 && !test3) {
       // ignore: use_build_context_synchronously
-      ShowCaseWidget.of(context)
-          .startShowCase([_showCaseLogoutButton, _showCaseAddTaskButton]);
+      ShowCaseWidget.of(context).startShowCase([
+        _showCaseLogoutButton,
+        _showCaseFeedbackButton,
+        _showCaseAddTaskButton
+      ]);
     }
     _sharedPrefService.setShowCaseAddTaskButtonKey(true);
     _sharedPrefService.setShowCaseLogoutButtonKey(true);
+    _sharedPrefService.setShowCaseFeedbackButtonKey(true);
   }
 
   Future<void> _getTasks(TasksData tasksData) async {
@@ -71,7 +78,17 @@ class _HomeScreenState extends State<HomeScreen> {
             description: 'Tap here to logout from your account',
             child: IconButton(
               onPressed: () => context.read<TasksData>().logout(context),
-              icon: const Icon(Icons.logout),
+              icon: const Icon(Icons.logout_outlined),
+            ),
+          ),
+          Showcase(
+            key: _showCaseFeedbackButton,
+            title: 'Feedback',
+            description: 'Tap here to give a feedback to our app.',
+            child: IconButton(
+              onPressed: () => Navigator.of(context).push(CupertinoPageRoute(
+                  builder: (context) => const FeedbackScreen())),
+              icon: const Icon(Icons.feedback_outlined),
             ),
           )
         ],

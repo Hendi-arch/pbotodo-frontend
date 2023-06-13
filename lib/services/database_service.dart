@@ -197,4 +197,27 @@ class DatabaseService {
     debugPrint(response.body);
     return response;
   }
+
+  Future<http.Response> forgotPassword(String username, String password) async {
+    final data = {
+      "password": password,
+      "username": username,
+    };
+    debugPrint(data.toString());
+    final body = json.encode(data);
+    final url = Uri.parse('$baseURL/auth/forgot_password');
+
+    final response = await http.put(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: body,
+    );
+    if (response.statusCode <= 399) {
+      return response;
+    } else {
+      final responseMap = jsonDecode(response.body);
+      throw HttpException(responseMap['message'] ??
+          'Oops, An error occurred, please try again');
+    }
+  }
 }

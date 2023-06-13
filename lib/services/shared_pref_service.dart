@@ -9,6 +9,9 @@ class SharedPrefService {
   static const String _showCaseAccountButtonKey = 'showCaseAccountButtonKey';
   static const String _showCaseAddTaskButtonKey = 'showCaseAddTaskButtonKey';
   static const String _showCaseLogoutButtonKey = 'showCaseLogoutButtonKey';
+  static const String _showCaseFeedbackButtonKey = 'showCaseFeedbackButtonKey';
+  static const String _showCaseForgotPasswordButtonKey =
+      'showCaseForgotPasswordButtonKey';
   SharedPreferences? _prefs;
 
   factory SharedPrefService() => _instance;
@@ -68,6 +71,16 @@ class SharedPrefService {
     return prefs.getBool(_showCaseLogoutButtonKey) ?? false;
   }
 
+  Future<bool> getShowCasFeedbackButtonKey() async {
+    final prefs = await this.prefs;
+    return prefs.getBool(_showCaseFeedbackButtonKey) ?? false;
+  }
+
+  Future<bool> getShowCaseForgotPasswordButtonKey() async {
+    final prefs = await this.prefs;
+    return prefs.getBool(_showCaseForgotPasswordButtonKey) ?? false;
+  }
+
   Future<bool?> setShowCaseAuthButtonKey(bool value) async {
     final prefs = await this.prefs;
     return prefs.setBool(_showCaseAuthButtonKey, value);
@@ -86,6 +99,16 @@ class SharedPrefService {
   Future<bool?> setShowCaseLogoutButtonKey(bool value) async {
     final prefs = await this.prefs;
     return prefs.setBool(_showCaseLogoutButtonKey, value);
+  }
+
+  Future<bool?> setShowCaseFeedbackButtonKey(bool value) async {
+    final prefs = await this.prefs;
+    return prefs.setBool(_showCaseFeedbackButtonKey, value);
+  }
+
+  Future<bool?> setShowCaseForgotPasswordButtonKey(bool value) async {
+    final prefs = await this.prefs;
+    return prefs.setBool(_showCaseForgotPasswordButtonKey, value);
   }
 
   Future<bool> setDeviceId(String deviceId) async {
