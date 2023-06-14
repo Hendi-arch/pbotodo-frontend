@@ -142,6 +142,7 @@ class _AuthScreenState extends State<AuthScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_isSigningIn ? 'Sign In' : 'Sign Up'),
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0).w,

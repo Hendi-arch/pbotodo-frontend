@@ -16,11 +16,13 @@ class AuthFieldValidationWidget extends StatelessWidget {
     return Card(
       color: Colors.green[50],
       child: Padding(
-        padding: const EdgeInsets.all(5.0),
+        padding: const EdgeInsets.all(1.0).h,
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Radio.adaptive(
               value: true,
+              activeColor: Colors.blue,
               groupValue: isValid,
               onChanged: null,
             ),

@@ -102,6 +102,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Task'),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0).w,
