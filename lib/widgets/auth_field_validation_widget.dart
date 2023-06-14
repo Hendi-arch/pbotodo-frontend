@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -16,13 +17,12 @@ class AuthFieldValidationWidget extends StatelessWidget {
     return Card(
       color: Colors.green[50],
       child: Padding(
-        padding: const EdgeInsets.all(1.0).h,
+        padding: const EdgeInsets.all(5.0).h,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Radio.adaptive(
+            CupertinoRadio(
               value: true,
-              activeColor: Colors.blue,
               groupValue: isValid,
               onChanged: null,
             ),
