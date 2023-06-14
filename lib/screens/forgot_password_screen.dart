@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:todo/services/database_service.dart';
 import 'package:todo/shared/functions.dart';
+import 'package:todo/widgets/auth_field_validation_widget.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -18,6 +19,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isFetchingData = false;
   bool _isObscurePassword = true;
+
+  final ValueNotifier<bool> _passwordCannotBeEmpty = ValueNotifier(false);
+  final ValueNotifier<bool> _hasMinimum6Length = ValueNotifier(false);
+  final ValueNotifier<bool> _passwordMustContainUppercase =
+      ValueNotifier(false);
+  final ValueNotifier<bool> _containLowercase = ValueNotifier(false);
+  final ValueNotifier<bool> _containsDigitAndSymbol = ValueNotifier(false);
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -59,18 +67,19 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       appBar: AppBar(
         title: const Text('Reset Password'),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0).w,
         child: Form(
           key: _formKey,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               TextFormField(
                 controller: _usernameController,
                 decoration: const InputDecoration(
                   labelText: 'Username',
                 ),
+                maxLines: 1,
                 validator: (value) {
                   if (value?.isEmpty ?? true) {
                     return 'Please enter your username';
@@ -93,6 +102,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                 ),
                 obscureText: _isObscurePassword,
+                maxLines: 1,
                 validator: (value) {
                   if (value?.isEmpty ?? true) {
                     return 'Please enter your password';
@@ -113,6 +123,60 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     return 'Password must contain at least one digit and one symbol';
                   }
                   return null;
+                },
+                onChanged: (value) {
+                  _passwordCannotBeEmpty.value = value.isNotEmpty;
+                  _hasMinimum6Length.value = hasMinimumLength(value, 6);
+                  _passwordMustContainUppercase.value =
+                      !doesNotContainUppercase(value);
+                  _containLowercase.value = containLowercase(value);
+                  _containsDigitAndSymbol.value = containsDigitAndSymbol(value);
+                },
+              ),
+              SizedBox(height: 8.0.h),
+              ValueListenableBuilder<bool>(
+                valueListenable: _passwordCannotBeEmpty,
+                builder: (context, value, child) {
+                  return AuthFieldValidationWidget(
+                    title: 'Cannot Be Empty',
+                    isValid: value,
+                  );
+                },
+              ),
+              ValueListenableBuilder<bool>(
+                valueListenable: _hasMinimum6Length,
+                builder: (context, value, child) {
+                  return AuthFieldValidationWidget(
+                    title: 'Has Minimum 6 Length',
+                    isValid: value,
+                  );
+                },
+              ),
+              ValueListenableBuilder<bool>(
+                valueListenable: _containLowercase,
+                builder: (context, value, child) {
+                  return AuthFieldValidationWidget(
+                    title: 'Contain Lowercase',
+                    isValid: value,
+                  );
+                },
+              ),
+              ValueListenableBuilder<bool>(
+                valueListenable: _containsDigitAndSymbol,
+                builder: (context, value, child) {
+                  return AuthFieldValidationWidget(
+                    title: 'Contains Digit And Symbol',
+                    isValid: value,
+                  );
+                },
+              ),
+              ValueListenableBuilder<bool>(
+                valueListenable: _passwordMustContainUppercase,
+                builder: (context, value, child) {
+                  return AuthFieldValidationWidget(
+                    title: 'Must Contain Uppercase',
+                    isValid: value,
+                  );
                 },
               ),
               SizedBox(height: 16.0.h),

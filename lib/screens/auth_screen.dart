@@ -11,6 +11,7 @@ import 'package:todo/Services/database_service.dart';
 import 'package:todo/services/fa_service.dart';
 import 'package:todo/services/fcm_service.dart';
 import 'package:todo/shared/functions.dart';
+import 'package:todo/widgets/auth_field_validation_widget.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -24,9 +25,6 @@ class _AuthScreenState extends State<AuthScreen> {
   final _fcmService = FirebaseMessagingService();
   final _sharedPrefService = SharedPrefService();
 
-  bool _isSigningIn = true;
-  bool _isFetchingData = false;
-  bool _isObscurePassword = true;
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -34,6 +32,21 @@ class _AuthScreenState extends State<AuthScreen> {
   final _showCaseAuthButton = GlobalKey();
   final _showCaseAccountButton = GlobalKey();
   final _showCaseForgotPasswordButton = GlobalKey();
+
+  bool _isSigningIn = true;
+  bool _isFetchingData = false;
+  bool _isObscurePassword = true;
+  final ValueNotifier<bool> _usernameCannotBeEmpty = ValueNotifier(false);
+  final ValueNotifier<bool> _passwordCannotBeEmpty = ValueNotifier(false);
+  final ValueNotifier<bool> _hasMinimum4Length = ValueNotifier(false);
+  final ValueNotifier<bool> _hasMinimum6Length = ValueNotifier(false);
+  final ValueNotifier<bool> _containsOnlyValidCharacters = ValueNotifier(false);
+  final ValueNotifier<bool> _usernameShouldNotContainUppercase =
+      ValueNotifier(false);
+  final ValueNotifier<bool> _passwordMustContainUppercase =
+      ValueNotifier(false);
+  final ValueNotifier<bool> _containLowercase = ValueNotifier(false);
+  final ValueNotifier<bool> _containsDigitAndSymbol = ValueNotifier(false);
 
   @override
   void initState() {
@@ -130,18 +143,20 @@ class _AuthScreenState extends State<AuthScreen> {
       appBar: AppBar(
         title: Text(_isSigningIn ? 'Sign In' : 'Sign Up'),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0).w,
         child: Form(
           key: _formKey,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               TextFormField(
                 controller: _usernameController,
                 decoration: const InputDecoration(
                   labelText: 'Username',
                 ),
+                maxLines: 1,
+                textInputAction: TextInputAction.next,
                 validator: (value) {
                   if (value?.isEmpty ?? true) {
                     return 'Please enter your username';
@@ -159,7 +174,95 @@ class _AuthScreenState extends State<AuthScreen> {
                   }
                   return null;
                 },
+                onChanged: (value) {
+                  _usernameCannotBeEmpty.value = value.isNotEmpty;
+                  _hasMinimum4Length.value = hasMinimumLength(value, 4);
+                  _containsOnlyValidCharacters.value =
+                      containsOnlyValidCharacters(value);
+                  _usernameShouldNotContainUppercase.value =
+                      doesNotContainUppercase(value);
+                },
               ),
+              SizedBox(height: 8.0.h),
+              ValueListenableBuilder<bool>(
+                valueListenable: _usernameCannotBeEmpty,
+                builder: (context, value, child) {
+                  return AuthFieldValidationWidget(
+                    title: 'Cannot Be Empty',
+                    isValid: value,
+                  );
+                },
+              ),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 350),
+                transitionBuilder: (child, animation) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(-1.0, 0.0),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  );
+                },
+                child: !_isSigningIn
+                    ? ValueListenableBuilder<bool>(
+                        valueListenable: _hasMinimum4Length,
+                        builder: (context, value, child) {
+                          return AuthFieldValidationWidget(
+                            title: 'Has Minimum 4 Length',
+                            isValid: value,
+                          );
+                        },
+                      )
+                    : const SizedBox.shrink(),
+              ),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 350),
+                transitionBuilder: (child, animation) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(1.0, 0.0),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  );
+                },
+                child: !_isSigningIn
+                    ? ValueListenableBuilder<bool>(
+                        valueListenable: _containsOnlyValidCharacters,
+                        builder: (context, value, child) {
+                          return AuthFieldValidationWidget(
+                            title: 'Contains Only Valid Symbol [a-z0-9_]',
+                            isValid: value,
+                          );
+                        },
+                      )
+                    : const SizedBox.shrink(),
+              ),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 350),
+                transitionBuilder: (child, animation) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(-1.0, 0.0),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  );
+                },
+                child: !_isSigningIn
+                    ? ValueListenableBuilder<bool>(
+                        valueListenable: _usernameShouldNotContainUppercase,
+                        builder: (context, value, child) {
+                          return AuthFieldValidationWidget(
+                            title: 'Should Not Contain Uppercase',
+                            isValid: value,
+                          );
+                        },
+                      )
+                    : const SizedBox.shrink(),
+              ),
+              SizedBox(height: 16.0.h),
               TextFormField(
                 controller: _passwordController,
                 decoration: InputDecoration(
@@ -175,6 +278,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                 ),
                 obscureText: _isObscurePassword,
+                maxLines: 1,
                 validator: (value) {
                   if (value?.isEmpty ?? true) {
                     return 'Please enter your password';
@@ -198,6 +302,116 @@ class _AuthScreenState extends State<AuthScreen> {
                   }
                   return null;
                 },
+                onChanged: (value) {
+                  _passwordCannotBeEmpty.value = value.isNotEmpty;
+                  _hasMinimum6Length.value = hasMinimumLength(value, 6);
+                  _passwordMustContainUppercase.value =
+                      !doesNotContainUppercase(value);
+                  _containLowercase.value = containLowercase(value);
+                  _containsDigitAndSymbol.value = containsDigitAndSymbol(value);
+                },
+              ),
+              SizedBox(height: 8.0.h),
+              ValueListenableBuilder<bool>(
+                valueListenable: _passwordCannotBeEmpty,
+                builder: (context, value, child) {
+                  return AuthFieldValidationWidget(
+                    title: 'Cannot Be Empty',
+                    isValid: value,
+                  );
+                },
+              ),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 350),
+                transitionBuilder: (child, animation) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(-1.0, 0.0),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  );
+                },
+                child: !_isSigningIn
+                    ? ValueListenableBuilder<bool>(
+                        valueListenable: _hasMinimum6Length,
+                        builder: (context, value, child) {
+                          return AuthFieldValidationWidget(
+                            title: 'Has Minimum 6 Length',
+                            isValid: value,
+                          );
+                        },
+                      )
+                    : const SizedBox.shrink(),
+              ),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 350),
+                transitionBuilder: (child, animation) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(1.0, 0.0),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  );
+                },
+                child: !_isSigningIn
+                    ? ValueListenableBuilder<bool>(
+                        valueListenable: _containLowercase,
+                        builder: (context, value, child) {
+                          return AuthFieldValidationWidget(
+                            title: 'Contain Lowercase',
+                            isValid: value,
+                          );
+                        },
+                      )
+                    : const SizedBox.shrink(),
+              ),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 350),
+                transitionBuilder: (child, animation) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(-1.0, 0.0),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  );
+                },
+                child: !_isSigningIn
+                    ? ValueListenableBuilder<bool>(
+                        valueListenable: _containsDigitAndSymbol,
+                        builder: (context, value, child) {
+                          return AuthFieldValidationWidget(
+                            title: 'Contains Digit And Symbol',
+                            isValid: value,
+                          );
+                        },
+                      )
+                    : const SizedBox.shrink(),
+              ),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 350),
+                transitionBuilder: (child, animation) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(1.0, 0.0),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  );
+                },
+                child: !_isSigningIn
+                    ? ValueListenableBuilder<bool>(
+                        valueListenable: _passwordMustContainUppercase,
+                        builder: (context, value, child) {
+                          return AuthFieldValidationWidget(
+                            title: 'Must Contain Uppercase',
+                            isValid: value,
+                          );
+                        },
+                      )
+                    : const SizedBox.shrink(),
               ),
               SizedBox(height: 16.0.h),
               Showcase(

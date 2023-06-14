@@ -82,7 +82,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Enter your feedback',
                 ),
-                maxLines: null,
+                maxLines: 5,
+                maxLength: 500,
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'Please enter your feedback';
