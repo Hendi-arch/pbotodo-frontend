@@ -4,7 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class AppThemes {
   static ThemeData data() {
     return ThemeData(
-      primarySwatch: Colors.green,
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
       textTheme: TextTheme(
         displayLarge: TextStyle(fontSize: 57.sp),
         displayMedium: TextStyle(fontSize: 45.sp),
